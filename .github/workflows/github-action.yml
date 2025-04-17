@@ -1,0 +1,33 @@
+name: basealt-test-workflow
+
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        runs-on: self-hosted
+        steps:
+            - name: Клонируем репозиторий
+              uses: actions/checkout@v3
+
+            - name: Создаем .env файл
+              run: |
+                  echo "MY_DOMAIN=${{ secrets.MY_DOMAIN }}" > .env
+                  echo "API_DOMAIN=${{ secrets.API_DOMAIN }}" >> .env
+                  echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" > .env
+                  echo "REACT_APP_TASKS_ENDPOINT=${{ secrets.REACT_APP_TASKS_ENDPOINT }}" >> .env
+
+            - name: Собираем Докер-образ
+              run: docker build -t basealt-test
+
+            - name: Останавливаем и удаляем старый контейнер
+              run: |
+                  docker stop my-app || true
+                  docker rm my-app || true
+
+            - name: Запускаем новый контейнер
+              run: docker run -d --name basealt-test -p 80:80 basealt-test
