@@ -1,0 +1,21 @@
+server {
+  listen 80;
+  server_name ${MY_DOMAIN};
+
+  error_log /var/log/nginx/${MY_DOMAIN}-error.log error;
+
+  # Статика React
+  location / {
+    root /usr/share/nginx/html;
+    try_files $uri $uri/ /index.html;
+    gzip on;
+    gzip_types text/plain application/xml text/css application/javascript;
+  }
+
+  # Прокси для API
+  location /api/ {
+    proxy_pass ${REACT_APP_API_URL};
+    proxy_set_header Host ${API_DOMAIN};
+    add_header 'Access-Control-Allow-Origin' 'http://${MY_DOMAIN}';
+  }
+}

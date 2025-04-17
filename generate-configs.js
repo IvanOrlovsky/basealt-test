@@ -20,4 +20,10 @@ replacePlaceholders(
 	path.join(__dirname, "package.json")
 );
 
+// Генерация nginx.conf
+replacePlaceholders(
+	path.join(__dirname, "templates/nginx.conf.template"),
+	path.join(__dirname, "nginx.conf")
+);
+
 console.log("Конфигурации успешно сгенерированы!");
