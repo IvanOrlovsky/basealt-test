@@ -2,6 +2,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 COPY .env .
 COPY generate-configs.js .
+RUN npm install dotenv
 RUN node ./generate-configs.js
 COPY package*.json ./
 RUN npm install
