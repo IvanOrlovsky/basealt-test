@@ -4,9 +4,9 @@ import "./LoadingScreen.css";
 
 export function LoadingScreen({ text }: LoadingScreenProps) {
 	return (
-		<main>
+		<main className="loading-screen">
 			<Spinner size="xl" />
-			<span>{text}</span>
+			<span className="loading-screen-text">{text}</span>
 		</main>
 	);
 }

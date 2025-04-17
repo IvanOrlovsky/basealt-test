@@ -1,4 +1,4 @@
-main {
+.loading-screen {
 	width: 100vw;
 	height: 100vh;
 	display: flex;
@@ -8,7 +8,7 @@ main {
 	column-gap: 2vh;
 }
 
-span {
+.loading-screen-text {
 	font-size: x-large;
 	font-weight: bold;
 }
