@@ -18,7 +18,7 @@ jobs:
               run: |
                   echo "MY_DOMAIN=${{ secrets.MY_DOMAIN }}" > .env
                   echo "API_DOMAIN=${{ secrets.API_DOMAIN }}" >> .env
-                  echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" > .env
+                  echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" >> .env
                   echo "REACT_APP_TASKS_ENDPOINT=${{ secrets.REACT_APP_TASKS_ENDPOINT }}" >> .env
 
             - name: Собираем Докер-образ
