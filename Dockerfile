@@ -1,6 +1,6 @@
 FROM node:20-alpine AS build
 WORKDIR /app
-RUN node node .\generate-configs.js 
+RUN node ./generate-configs.js
 COPY package*.json ./
 RUN npm install
 COPY . .
