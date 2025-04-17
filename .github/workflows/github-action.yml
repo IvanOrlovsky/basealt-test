@@ -22,7 +22,7 @@ jobs:
                   echo "REACT_APP_TASKS_ENDPOINT=${{ secrets.REACT_APP_TASKS_ENDPOINT }}" >> .env
 
             - name: Собираем Докер-образ
-              run: docker build -t basealt-test
+              run: docker build -t basealt-test .
 
             - name: Останавливаем и удаляем старый контейнер
               run: |
