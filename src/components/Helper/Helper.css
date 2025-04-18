@@ -1,0 +1,39 @@
+.helper-wrapper {
+	position: fixed;
+	left: 0;
+	top: 20%;
+}
+
+.helper-container {
+	box-shadow: 5px 0px 20px 1px black;
+	border-radius: 0px 10px 10px 0px;
+	background-color: grey;
+	padding: 20px 20px 10px 5px;
+	transition: opacity 0.3s ease;
+	color: white;
+	font-weight: bold;
+}
+
+.helper-wrapper:hover .helper-container {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.circle {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+}
+
+.helper-container ul {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.helper-container li {
+	display: flex;
+	flex-direction: row;
+	gap: 5px;
+	align-items: center;
+}

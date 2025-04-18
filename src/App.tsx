@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import "@patternfly/react-core/dist/styles/base.css";
 import { getAllTaskHistory, ParsedHistoryType } from "./api";
-import { LoadingScreen } from "./components";
+import { Helper, LoadingScreen } from "./components";
 
 function App() {
 	const [history, setHistory] = useState<ParsedHistoryType | null>(null);
@@ -37,6 +37,7 @@ function App() {
 
 	return (
 		<main>
+			<Helper />
 			{history ? (
 				JSON.stringify(history, null, 4)
 			) : (
