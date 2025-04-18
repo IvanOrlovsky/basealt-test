@@ -1,3 +1,12 @@
+
+export type ParsedHistoryType = Record<string, ParsedTaskDataType>;
+
+export type ParsedTaskDataType =
+| Omit<TaskType, "id">
+| {
+	commit?: Omit<BranchCommitType, "task">;
+};
+
 const branches = ["sisyphus", "p11", "p10", "p9", "c10f2", "c9f2"] as const;
 
 export type TasksHistoryType = {
