@@ -2,6 +2,7 @@
 	position: fixed;
 	left: 0;
 	top: 20%;
+	z-index: 9999;
 }
 
 .helper-container {
