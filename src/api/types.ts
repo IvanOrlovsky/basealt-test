@@ -1,13 +1,12 @@
-
 export type ParsedHistoryType = Record<string, ParsedTaskDataType>;
 
-export type ParsedTaskDataType =
-| Omit<TaskType, "id">
-| {
+export type ParsedTaskDataType = Omit<TaskType, "id"> & {
 	commit?: Omit<BranchCommitType, "task">;
 };
 
 const branches = ["sisyphus", "p11", "p10", "p9", "c10f2", "c9f2"] as const;
+
+export type BranchesType = (typeof branches)[number];
 
 export type TasksHistoryType = {
 	branches: typeof branches;
@@ -18,12 +17,12 @@ export type TasksHistoryType = {
 export type TaskType = {
 	id: number;
 	prev: number;
-	branch: (typeof branches)[number];
+	branch: BranchesType;
 	date: DateTimeString;
 };
 
 export type BranchCommitType = {
-	name: (typeof branches)[number];
+	name: BranchesType;
 	date: DateTimeString;
 	task: number;
 };
