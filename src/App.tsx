@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import "./App.css";
 import "@patternfly/react-core/dist/styles/base.css";
 import "@xyflow/react/dist/style.css";
@@ -9,13 +9,23 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { Toaster } from "react-hot-toast";
 
 function App() {
-	const [history, setHistory] = useState<ParsedHistoryType | null>(null);
+	const [rawHistory, setRawHistory] = useState<any | null>(null);
 
 	const loadHistory = async () => {
 		const result = await getAllTaskHistory();
+		setRawHistory(result);
+	};
+
+	useEffect(() => {
+		loadHistory();
+	}, []);
+
+	const history = useMemo(() => {
+		if (!rawHistory) return null;
+
 		const parsedHistory: ParsedHistoryType = {};
 
-		for (let task of result.tasks) {
+		for (let task of rawHistory.tasks) {
 			parsedHistory[String(task.id)] = {
 				prev: task.prev,
 				branch: task.branch,
@@ -23,7 +33,7 @@ function App() {
 			};
 		}
 
-		for (let commit of result.branch_commits) {
+		for (let commit of rawHistory.branch_commits) {
 			if (parsedHistory.hasOwnProperty(commit.task)) {
 				parsedHistory[commit.task] = {
 					...parsedHistory[commit.task],
@@ -32,12 +42,8 @@ function App() {
 			}
 		}
 
-		setHistory(parsedHistory);
-	};
-
-	useEffect(() => {
-		loadHistory();
-	}, []);
+		return parsedHistory;
+	}, [rawHistory]);
 
 	return (
 		<main>
