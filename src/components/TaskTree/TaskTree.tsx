@@ -8,6 +8,7 @@ import { TaskInfo } from "./TaskInfo";
 import toast from "react-hot-toast";
 
 import "./TaskTree.css";
+import { copyToClipboard } from "../../heplers";
 
 const nodeTypes = { taskNode: TaskNode };
 const LAYER_SIZE = 100;
@@ -208,10 +209,9 @@ export function TaskTree({
 				onNodeMouseEnter={(event, node) => setHoveredNode(node)}
 				onNodeMouseLeave={(event, node) => setHoveredNode(null)}
 				onNodeClick={(event, node) => setHoveredNode(node)}
-				onNodeDoubleClick={(event, node) => {
-					navigator.clipboard.writeText(node.data.id as string);
-					toast.success(`ID ${node.data.id} успешно скопирован!`);
-				}}
+				onNodeDoubleClick={(event, node) =>
+					copyToClipboard(node.data.id as string)
+				}
 				onlyRenderVisibleElements={true}
 				nodesConnectable={false}
 			>

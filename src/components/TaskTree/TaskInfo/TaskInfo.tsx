@@ -1,6 +1,6 @@
 import { Divider } from "@patternfly/react-core";
 import "./TaskInfo.css";
-import { toRuDate } from "../../../heplers";
+import { copyToClipboard, toRuDate } from "../../../heplers";
 import { ParsedTaskDataType } from "../../../api";
 import { backgroundColors } from "../TaskNode";
 import toast from "react-hot-toast";
@@ -13,7 +13,7 @@ export function TaskInfo({
 	id: string;
 }) {
 	const handleSaveId = (id: string) => {
-		navigator.clipboard.writeText(id);
+		copyToClipboard(id);
 		toast.success(`ID ${id} успешно скопирован!`);
 	};
 
