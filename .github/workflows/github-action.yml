@@ -26,8 +26,8 @@ jobs:
 
             - name: Останавливаем и удаляем старый контейнер
               run: |
-                  docker stop my-app || true
-                  docker rm my-app || true
+                  docker stop basealt-test || true
+                  docker rm basealt-test || true
 
             - name: Запускаем новый контейнер
               run: docker run -d --name basealt-test -p 80:80 basealt-test
