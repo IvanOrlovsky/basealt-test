@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import "@patternfly/react-core/dist/styles/base.css";
+import "@xyflow/react/dist/style.css";
 import { getAllTaskHistory, ParsedHistoryType } from "./api";
 import { Helper, LoadingScreen } from "./components";
+import { TaskTree } from "./components/TaskTree";
+import { ReactFlowProvider } from "@xyflow/react";
+import { Toaster } from "react-hot-toast";
 
 function App() {
 	const [history, setHistory] = useState<ParsedHistoryType | null>(null);
@@ -20,7 +24,7 @@ function App() {
 		}
 
 		for (let commit of result.branch_commits) {
-			if (!!parsedHistory[commit.task]) {
+			if (parsedHistory.hasOwnProperty(commit.task)) {
 				parsedHistory[commit.task] = {
 					...parsedHistory[commit.task],
 					commit: { name: commit.name, date: commit.date },
@@ -37,9 +41,14 @@ function App() {
 
 	return (
 		<main>
+			<Toaster />
 			<Helper />
 			{history ? (
-				JSON.stringify(history, null, 4)
+				<>
+					<ReactFlowProvider>
+						<TaskTree history={history} />
+					</ReactFlowProvider>
+				</>
 			) : (
 				<LoadingScreen text="Подгружаем данные..." />
 			)}
