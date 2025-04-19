@@ -6,14 +6,20 @@ import { getAllTaskHistory, ParsedHistoryType } from "./api";
 import { Helper, LoadingScreen } from "./components";
 import { TaskTree } from "./components/TaskTree";
 import { ReactFlowProvider } from "@xyflow/react";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 function App() {
 	const [rawHistory, setRawHistory] = useState<any | null>(null);
 
 	const loadHistory = async () => {
-		const result = await getAllTaskHistory();
-		setRawHistory(result);
+		try {
+			const result = await getAllTaskHistory();
+			setRawHistory(result);
+		} catch (e) {
+			toast.error(
+				`Произошла ошибка при получении данных!\nПодробности: ${e}`
+			);
+		}
 	};
 
 	useEffect(() => {
