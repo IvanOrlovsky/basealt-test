@@ -22,14 +22,16 @@ export function TaskInfo({
 			className="node-container"
 			style={{ backgroundColor: backgroundColors[task.branch] }}
 		>
-			<div>
+			<div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
 				<h1>ID: {id.split("node-")[1]}</h1>
 				<button onClick={() => handleSaveId(id.split("node-")[1])}>
 					Скопировать ID
 				</button>
+				<p>Также можно дважды кликнуть по узлу для копирования!!!</p>
 			</div>
 			<Divider />
 			<p>Дата создания: {toRuDate(task.date)}</p>
+			<p>Ветка: {task.branch}</p>
 			{task.commit && (
 				<>
 					<Divider />

@@ -12,7 +12,13 @@ import "./TaskTree.css";
 const nodeTypes = { taskNode: TaskNode };
 const LAYER_SIZE = 100;
 
-export function TaskTree({ history }: { history: ParsedHistoryType }) {
+export function TaskTree({
+	history,
+	rootId,
+}: {
+	history: ParsedHistoryType;
+	rootId?: string; // Опциональный ID корневой задачи
+}) {
 	const [nodes, setNodes] = useState<Node[]>([]);
 	const [edges, setEdges] = useState<Edge[]>([]);
 	const [currentLayer, setCurrentLayer] = useState<string[]>([]);
@@ -27,10 +33,12 @@ export function TaskTree({ history }: { history: ParsedHistoryType }) {
 		[]
 	);
 
-	useEffect(() => {
+	// Функция для загрузки корней и первого чанка
+	const loadInitialData = () => {
 		if (Object.keys(history).length === 0) return;
 
-		const roots = findRoots(history);
+		const roots = rootId !== undefined ? [rootId] : findRoots(history);
+
 		if (roots.length === 0) return;
 
 		const initialNodes: Node[] = roots.map((id, index) => ({
@@ -40,28 +48,12 @@ export function TaskTree({ history }: { history: ParsedHistoryType }) {
 			position: { x: index * 200, y: 0 },
 		}));
 
-		setNodes(initialNodes);
-		setEdges([]);
-		setCurrentLayer(roots);
-		setChuncksLoaded(1); // Первый чанк = корневой слой
-
-		reactFlowInstance.fitView({
-			nodes: [{ id: `node-${roots[0]}` }],
-			duration: 500,
-		});
-
-		setMostRootElement(`node-${roots[0]}`);
-	}, [history, reactFlowInstance]);
-
-	useEffect(() => {
-		// Пока слой корней не добавился не подгружаем чанк
-		if (currentLayer.length === 0) return;
-
-		const newNodes: Node[] = [];
-		const newEdges: Edge[] = [];
+		// Загрузка первого чанка
+		const firstChunkNodes: Node[] = [];
+		const firstChunkEdges: Edge[] = [];
 
 		//Сначала надо собрать ID всех детей текущего слоя, у которых есть запись в истории
-		let currentChildren: string[] = currentLayer
+		let currentChildren: string[] = roots
 			.filter((id) => history[id] !== undefined)
 			.filter((id) => history[id].prev !== undefined);
 
@@ -79,19 +71,90 @@ export function TaskTree({ history }: { history: ParsedHistoryType }) {
 			//Добавляем всех родителей к узлам
 			currentPairs.forEach(({ parentId, childId }, index) => {
 				// Кроме задачек в "вакууме", так сказать
-				if (parentId === "NONE") {
-					return;
-				}
+				if (parentId === "NONE") return;
 
 				const parentData = history[parentId];
 
 				// И кроме ID тех задач, которые кому-то родители, но их самих в истории нет
-				if (parentData === undefined) {
-					return;
-				}
+				if (parentData === undefined) return;
+
+				const layerY = LAYER_SIZE * 2 + i * (LAYER_SIZE + 100); // Фиксированный шаг между слоями
+
+				firstChunkNodes.push({
+					id: `node-${parentId}`,
+					data: { id: parentId, task: parentData },
+					type: "taskNode",
+					position: {
+						x: index * 200 + Math.random() * 25 - 12,
+						y: layerY,
+					},
+				});
+
+				firstChunkEdges.push({
+					id: `edge-${childId}-${parentId}`,
+					source: `node-${childId}`,
+					target: `node-${parentId}`,
+					style: { strokeWidth: 10, color: "red" },
+				});
+
+				//Обновляем текущий слой
+				currentChildren = currentPairs.map((pair) => pair.parentId);
+			});
+		}
+
+		setNodes([...initialNodes, ...firstChunkNodes]);
+		setEdges(firstChunkEdges);
+		setCurrentLayer(currentChildren);
+		setChuncksLoaded(1); // Установка первого чанка
+
+		reactFlowInstance.fitView({
+			nodes: [{ id: `node-${roots[0]}` }],
+			duration: 500,
+		});
+
+		setMostRootElement(`node-${roots[0]}`);
+	};
+
+	useEffect(() => {
+		// Сброс состояния при изменении истории
+		setNodes([]);
+		setEdges([]);
+		setCurrentLayer([]);
+		setChuncksLoaded(0);
+
+		// Загрузка корней и первого чанка
+		loadInitialData();
+	}, [history, rootId, reactFlowInstance]);
+
+	// useEffect для подгрузки последующих чанков
+	useEffect(() => {
+		// Подгрузка чанков происходит только если chuncksLoaded > 1
+		if (chuncksLoaded <= 1 || currentLayer.length === 0) return;
+
+		const newNodes: Node[] = [];
+		const newEdges: Edge[] = [];
+
+		let currentChildren: string[] = currentLayer
+			.filter((id) => history[id] !== undefined)
+			.filter((id) => history[id].prev !== undefined);
+
+		for (let i = 0; i < LAYERS_PER_SCREEN; i++) {
+			const currentPairs: Array<{ parentId: string; childId: string }> =
+				currentChildren.map((child) => ({
+					parentId: history[child]
+						? String(history[child].prev)
+						: "NONE",
+					childId: child,
+				}));
+
+			currentPairs.forEach(({ parentId, childId }, index) => {
+				if (parentId === "NONE") return;
+
+				const parentData = history[parentId];
+				if (parentData === undefined) return;
 
 				const layerIndex = (chuncksLoaded - 1) * LAYERS_PER_SCREEN + i;
-				const layerY = LAYER_SIZE * 2 + layerIndex * (LAYER_SIZE + 100); // Фиксированный шаг между слоями
+				const layerY = LAYER_SIZE * 2 + layerIndex * (LAYER_SIZE + 100);
 
 				newNodes.push({
 					id: `node-${parentId}`,
@@ -110,7 +173,6 @@ export function TaskTree({ history }: { history: ParsedHistoryType }) {
 					style: { strokeWidth: 10, color: "red" },
 				});
 
-				//Обновляем текущий слой
 				currentChildren = currentPairs.map((pair) => pair.parentId);
 			});
 		}
@@ -120,7 +182,7 @@ export function TaskTree({ history }: { history: ParsedHistoryType }) {
 			setEdges((prev) => [...prev, ...newEdges]);
 			setCurrentLayer(currentChildren);
 		}
-	}, [chuncksLoaded]); // Триггерится только при изменении chuncksLoaded
+	}, [chuncksLoaded]);
 
 	const onViewportChange = throttle((viewport) => {
 		const currentZoom = viewport.zoom;
