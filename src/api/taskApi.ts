@@ -1,3 +1,4 @@
+import axios from "axios";
 import { axiosInstance } from "./axiosInstance";
 import { TasksHistoryType } from "./types";
 
@@ -9,10 +10,30 @@ export async function getAllTaskHistory(): Promise<TasksHistoryType> {
 		const response = await axiosInstance.get(
 			process.env.REACT_APP_TASKS_ENDPOINT!
 		);
+
 		return response.data;
-	} catch (e) {
-		console.error("Ошибка при получении всей истории: ", e);
-		throw e;
+	} catch (error) {
+		if (axios.isAxiosError(error)) {
+			if (error.response) {
+				switch (error.response.status) {
+					case 400:
+						throw new Error("Некорректный запрос");
+					case 404:
+						throw new Error("Не найдено");
+					default:
+						throw new Error(
+							`Ошибка сервера: ${error.response.status}`
+						);
+				}
+			} else if (error.request) {
+				throw new Error("Не удалось получить ответ от сервера");
+			} else {
+				throw new Error(
+					`Ошибка при выполнении запроса: ${error.message}`
+				);
+			}
+		}
+		throw error;
 	}
 }
 
@@ -26,15 +47,43 @@ export async function getTaskHistory(
 	try {
 		const response = await axiosInstance.get(
 			process.env.REACT_APP_TASKS_ENDPOINT!,
-			{
-				params: {
-					task_id,
-				},
-			}
+			{ params: { task_id } }
 		);
+
+		// Проверяем, есть ли задача с таким ID в ответе (ОКАЗЫВАЕТСЯ НЕ ВСЕГДА ТАК)
+		if (
+			!response.data.tasks ||
+			!response.data.tasks.some((task: any) => task.id === task_id)
+		) {
+			throw new Error(
+				`Задача с ID ${task_id} не найдена в ответе сервера`
+			);
+		}
+
 		return response.data;
-	} catch (e) {
-		console.error("Ошибка при получении истории по ID задачи: ", e);
-		throw e;
+	} catch (error) {
+		if (axios.isAxiosError(error)) {
+			if (error.response) {
+				switch (error.response.status) {
+					case 400:
+						throw new Error(
+							"Некорректный запрос: проверьте введенный ID"
+						);
+					case 404:
+						throw new Error("Задача с указанным ID не найдена");
+					default:
+						throw new Error(
+							`Ошибка сервера: ${error.response.status}`
+						);
+				}
+			} else if (error.request) {
+				throw new Error("Не удалось получить ответ от сервера");
+			} else {
+				throw new Error(
+					`Ошибка при выполнении запроса: ${error.message}`
+				);
+			}
+		}
+		throw error;
 	}
 }
