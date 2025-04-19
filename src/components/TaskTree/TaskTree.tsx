@@ -145,6 +145,7 @@ export function TaskTree({ history }: { history: ParsedHistoryType }) {
 					navigator.clipboard.writeText(node.data.id as string);
 					toast.success(`ID ${node.data.id} успешно скопирован!`);
 				}}
+				onlyRenderVisibleElements
 			>
 				<Background bgColor="black" />
 			</ReactFlow>
