@@ -7,6 +7,8 @@ import { findRoots } from "./helpers";
 import { TaskInfo } from "./TaskInfo";
 import toast from "react-hot-toast";
 
+import "./TaskTree.css";
+
 const nodeTypes = { taskNode: TaskNode };
 const LAYER_SIZE = 100;
 
@@ -16,6 +18,7 @@ export function TaskTree({ history }: { history: ParsedHistoryType }) {
 	const [currentLayer, setCurrentLayer] = useState<string[]>([]);
 	const [chuncksLoaded, setChuncksLoaded] = useState<number>(0);
 	const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
+	const [mostRootElement, setMostRootElement] = useState<string | null>(null); // Для возврата к корню(Самый корневый корень - первый корень из списка корней)
 
 	const reactFlowInstance = useReactFlow();
 
@@ -46,6 +49,8 @@ export function TaskTree({ history }: { history: ParsedHistoryType }) {
 			nodes: [{ id: `node-${roots[0]}` }],
 			duration: 500,
 		});
+
+		setMostRootElement(`node-${roots[0]}`);
 	}, [history, reactFlowInstance]);
 
 	useEffect(() => {
@@ -154,6 +159,19 @@ export function TaskTree({ history }: { history: ParsedHistoryType }) {
 					task={hoveredNode.data.task as ParsedTaskDataType}
 					id={hoveredNode.id}
 				/>
+			)}
+			{mostRootElement && (
+				<button
+					onClick={() =>
+						reactFlowInstance.fitView({
+							nodes: [{ id: mostRootElement }],
+							duration: 500,
+						})
+					}
+					className="return-to-root-button"
+				>
+					Вернуться к корню
+				</button>
 			)}
 		</div>
 	);
