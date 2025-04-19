@@ -212,7 +212,8 @@ export function TaskTree({
 					navigator.clipboard.writeText(node.data.id as string);
 					toast.success(`ID ${node.data.id} успешно скопирован!`);
 				}}
-				onlyRenderVisibleElements
+				onlyRenderVisibleElements={true}
+				nodesConnectable={false}
 			>
 				<Background bgColor="black" />
 			</ReactFlow>
